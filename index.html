@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VibeCoding for Aisulu — Vol. I · MMXXVI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#1B1815;
+  --charcoal:#242019;
+  --graphite:#2B2620;
+  --cherry:#7A1024;
+  --burgundy:#96182F;
+  --warm-white:#F5F4F2;
+  --silver:#B3ABA1;
+  --champagne:#D8CBB4;
+  --hairline:rgba(245,244,242,0.16);
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+html,body{overflow:hidden;height:100%;background:var(--black);color:var(--warm-white)}
+
+body{
+  font-family:'Inter',sans-serif;
+  font-weight:300;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.6;
+}
+
+::selection{background:var(--cherry);color:var(--warm-white)}
+
+h1,h2,h3,h4{
+  font-family:'Fraunces',serif;
+  font-weight:400;
+  text-transform:uppercase;
+  line-height:1.02;
+  letter-spacing:-0.01em;
+}
+
+em,i{font-style:italic;color:var(--burgundy)}
+
+.eyebrow{
+  font-family:'Inter',sans-serif;
+  font-size:0.68rem;
+  font-weight:400;
+  text-transform:uppercase;
+  letter-spacing:0.32em;
+  color:var(--champagne);
+}
+
+/* ---------- Film grain overlay ---------- */
+.grain{
+  position:fixed;inset:0;z-index:9998;pointer-events:none;
+  mix-blend-mode:overlay;opacity:0.045;
+}
+
+/* ---------- Custom cursor ---------- */
+.cursor-dot,.cursor-ring{
+  position:fixed;top:0;left:0;z-index:9999;pointer-events:none;
+  border-radius:50%;mix-blend-mode:difference;
+  transform:translate(-50%,-50%);
+  will-change:transform;
+}
+.cursor-dot{width:6px;height:6px;background:var(--warm-white)}
+.cursor-ring{
+  width:36px;height:36px;border:1px solid var(--warm-white);
+  transition:width .35s var(--ease),height .35s var(--ease),opacity .35s var(--ease);
+}
+.cursor-ring.hovering{width:66px;height:66px;opacity:.7}
+
+/* ---------- Header ---------- */
+.masthead{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:clamp(1.4rem,3vw,2.4rem) clamp(1.4rem,4vw,3.5rem);
+  pointer-events:none;
+}
+.masthead .brand{
+  font-family:'Fraunces',serif;text-transform:uppercase;
+  font-size:0.9rem;letter-spacing:0.22em;font-weight:500;
+}
+.masthead .brand em{font-weight:300}
+.masthead .vol{
+  font-size:0.62rem;letter-spacing:0.3em;text-transform:uppercase;
+  color:var(--champagne);
+}
+
+/* ---------- View system ---------- */
+.view{
+  position:fixed;inset:0;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transform:scale(1.04);filter:blur(14px);
+  transition:opacity .85s var(--ease),transform .85s var(--ease),
+             filter .85s var(--ease),visibility 0s .85s;
+  overflow-y:auto;overflow-x:hidden;
+}
+.view.active{
+  opacity:1;visibility:visible;pointer-events:auto;
+  transform:scale(1);filter:blur(0);
+  transition:opacity .85s var(--ease),transform .85s var(--ease),
+             filter .85s var(--ease),visibility 0s 0s;
+}
+@media (prefers-reduced-motion:reduce){
+  .view{transition:opacity .3s ease,visibility 0s .3s;transform:none;filter:none}
+  .view.active{transition:opacity .3s ease,visibility 0s 0s;transform:none;filter:none}
+}
+
+/* ---------- Orbit ---------- */
+#orbit{display:flex;align-items:center;justify-content:center}
+.orbit-stage{
+  position:relative;
+  width:min(88vmin,760px);height:min(88vmin,760px);
+  display:flex;align-items:center;justify-content:center;
+}
+.ring-deco{
+  position:absolute;inset:6%;border:1px solid var(--hairline);
+  border-radius:50%;
+  animation:spin 100s linear infinite;
+}
+.ring-deco::before{
+  content:"";position:absolute;top:-4px;left:50%;
+  width:7px;height:7px;margin-left:-3.5px;border-radius:50%;
+  background:var(--burgundy);
+}
+.ring-deco.inner{inset:16%;animation-duration:140s;animation-direction:reverse;opacity:.6}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.ring-deco{animation:none}}
+
+.orbit-center{
+  position:absolute;text-align:center;max-width:60%;z-index:5;
+  pointer-events:none;
+}
+.orbit-center .eyebrow{display:block;margin-bottom:1.1rem}
+.orbit-center h1{
+  font-size:clamp(2.1rem,6.6vmin,3.6rem);
+  margin-bottom:1.4rem;
+}
+.orbit-center h1 em{display:block}
+.tagline{
+  font-size:0.82rem;color:var(--silver);line-height:1.7;
+  max-width:34ch;margin:0 auto;min-height:3.6em;
+  transition:opacity .4s var(--ease);
+}
+.tagline strong{color:var(--champagne);font-weight:400;letter-spacing:.04em}
+
+/* Orbit nodes */
+.node{
+  position:absolute;top:50%;left:50%;
+  width:0;height:0;z-index:6;
+}
+.node .dot{
+  position:absolute;top:50%;left:50%;
+  width:13px;height:13px;margin:-6.5px 0 0 -6.5px;
+  border-radius:50%;background:var(--warm-white);
+  border:none;cursor:pointer;
+  transition:transform .4s var(--ease),background .4s var(--ease),
+             box-shadow .4s var(--ease);
+}
+.node .dot::after{
+  content:attr(data-index);
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:0.5rem;color:var(--black);letter-spacing:0;
+}
+.node .name{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  white-space:nowrap;
+  font-family:'Fraunces',serif;text-transform:uppercase;
+  font-size:0.66rem;letter-spacing:0.24em;
+  color:var(--silver);
+  margin-top:20px;
+  opacity:0;transition:opacity .4s var(--ease),color .4s var(--ease);
+  pointer-events:none;
+}
+.node:hover .dot,.node:focus-within .dot{
+  transform:translate(-50%,-50%) scale(1.9);
+  background:var(--burgundy);
+  box-shadow:0 0 0 8px rgba(150,24,47,0.14);
+}
+.node:hover .name,.node:focus-within .name{opacity:1;color:var(--champagne)}
+
+/* ---------- Section interiors ---------- */
+.wrap{
+  max-width:1080px;margin:0 auto;
+  padding:clamp(5.5rem,12vh,9rem) clamp(1.5rem,6vw,4.5rem) 6rem;
+  min-height:100%;
+}
+.back{
+  position:sticky;top:0;z-index:20;
+  display:inline-flex;align-items:center;gap:.7rem;
+  background:none;border:none;color:var(--silver);cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:0.66rem;font-weight:400;
+  text-transform:uppercase;letter-spacing:0.24em;
+  padding:.4rem 0;margin-bottom:3rem;
+  transition:color .4s var(--ease),gap .4s var(--ease);
+}
+.back:hover{color:var(--champagne);gap:1.1rem}
+.back .arrow{font-family:'Fraunces',serif}
+
+.sec-eyebrow{display:block;margin-bottom:1.6rem}
+.sec-title{
+  font-size:clamp(2.2rem,6.5vw,4.6rem);
+  max-width:16ch;margin-bottom:2.4rem;
+}
+.lede{
+  font-size:clamp(1.05rem,2vw,1.35rem);
+  color:var(--silver);max-width:44ch;line-height:1.75;
+  font-weight:300;margin-bottom:4rem;
+}
+.body-copy{max-width:52ch;margin-bottom:1.6rem;color:var(--silver);font-size:1rem}
+.body-copy:last-child{margin-bottom:0}
+
+/* Big chapter numeral */
+.numeral{
+  font-family:'Fraunces',serif;font-weight:500;
+  font-size:clamp(6rem,22vw,15rem);line-height:.8;
+  color:transparent;-webkit-text-stroke:1px var(--hairline);
+  letter-spacing:0.02em;
+  position:absolute;top:clamp(3rem,10vh,7rem);right:clamp(1rem,5vw,4rem);
+  z-index:0;pointer-events:none;user-select:none;
+}
+
+/* Manifesto */
+.pull-quote{
+  font-family:'Fraunces',serif;font-style:italic;
+  text-transform:none;font-weight:300;
+  font-size:clamp(1.8rem,4.6vw,3.2rem);line-height:1.25;
+  max-width:20ch;margin-bottom:3.5rem;color:var(--warm-white);
+}
+.pull-quote::before{content:"“";color:var(--burgundy)}
+.pull-quote::after{content:"”";color:var(--burgundy)}
+
+/* Steps grid */
+.steps{list-style:none;counter-reset:step;
+  display:grid;grid-template-columns:1fr;border-top:1px solid var(--hairline)}
+.steps li{
+  counter-increment:step;
+  display:grid;grid-template-columns:auto 1fr;gap:clamp(1.2rem,4vw,3rem);
+  align-items:baseline;
+  padding:clamp(1.4rem,3vw,2.2rem) 0;
+  border-bottom:1px solid var(--hairline);
+  transition:background .4s var(--ease),padding-left .4s var(--ease);
+}
+.steps li:hover{background:var(--graphite);padding-left:1.2rem}
+.steps li::before{
+  content:counter(step,decimal-leading-zero);
+  font-family:'Fraunces',serif;font-size:0.9rem;color:var(--burgundy);
+  letter-spacing:0.1em;
+}
+.steps li h4{font-size:clamp(1rem,2.4vw,1.4rem);letter-spacing:0.01em}
+.steps li p{color:var(--silver);font-size:0.92rem;margin-top:.5rem;max-width:48ch;text-transform:none}
+
+/* Instruments cards */
+.cards{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:1px solid var(--hairline);border-left:1px solid var(--hairline);
+}
+.card{
+  border-right:1px solid var(--hairline);border-bottom:1px solid var(--hairline);
+  padding:clamp(1.8rem,3vw,2.6rem);
+  transition:background .45s var(--ease);
+  min-height:15rem;display:flex;flex-direction:column;
+}
+.card:hover{background:var(--graphite)}
+.card .plate{
+  height:120px;margin-bottom:1.8rem;position:relative;overflow:hidden;
+  border:1px solid var(--hairline);
+  background:
+    repeating-linear-gradient(135deg,rgba(245,244,242,0.05) 0 2px,transparent 2px 6px),
+    radial-gradient(120% 120% at 30% 20%,rgba(150,24,47,0.35),transparent 60%),
+    linear-gradient(160deg,var(--graphite),var(--black));
+}
+.card .k-name{font-size:1.5rem;margin-bottom:.4rem}
+.card .k-role{
+  font-family:'Inter',sans-serif;font-size:0.62rem;text-transform:uppercase;
+  letter-spacing:0.28em;color:var(--champagne);margin-bottom:1rem;
+}
+.card .k-desc{color:var(--silver);font-size:0.9rem;text-transform:none}
+
+/* Studio Notes */
+.notes{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  border-top:1px solid var(--hairline);border-left:1px solid var(--hairline);
+}
+.note{
+  border-right:1px solid var(--hairline);border-bottom:1px solid var(--hairline);
+  padding:clamp(1.6rem,3vw,2.4rem);
+  display:grid;grid-template-columns:auto 1fr;gap:1.4rem;align-items:start;
+  transition:background .45s var(--ease);
+}
+.note:hover{background:var(--graphite)}
+.note .n-num{
+  font-family:'Fraunces',serif;font-size:1.1rem;color:transparent;
+  -webkit-text-stroke:.8px var(--burgundy);
+}
+.note p{color:var(--silver);font-size:0.94rem;line-height:1.65}
+
+/* Enroll */
+#enroll .wrap{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;min-height:100vh;
+}
+#enroll .sec-title{max-width:18ch}
+.enroll-cta{
+  margin-top:3rem;background:none;border:1px solid var(--warm-white);
+  color:var(--warm-white);cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:400;
+  text-transform:uppercase;letter-spacing:0.3em;
+  padding:1.1rem 2.6rem;
+  transition:background .45s var(--ease),color .45s var(--ease),letter-spacing .45s var(--ease);
+}
+.enroll-cta:hover{background:var(--warm-white);color:var(--black);letter-spacing:0.36em}
+
+.foot{
+  margin-top:4rem;font-size:0.6rem;text-transform:uppercase;
+  letter-spacing:0.28em;color:var(--silver);
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width:760px){
+  .ring-deco,.node .dot::after{display:none}
+  .orbit-stage{width:auto;height:auto;display:block;padding:6rem 1.4rem 3rem}
+  .orbit-center{position:static;max-width:100%;text-align:left;margin-bottom:2.5rem}
+  .orbit-center h1{font-size:2.4rem}
+  .tagline{margin:0;min-height:auto;max-width:100%}
+  .node{position:static;width:100%;height:auto;border-top:1px solid var(--hairline)}
+  .node:last-of-type{border-bottom:1px solid var(--hairline)}
+  .node .dot{
+    position:static;display:none;
+  }
+  .node .name{
+    position:static;transform:none;opacity:1;color:var(--warm-white);
+    display:block;margin:0;padding:1.15rem 0;font-size:0.9rem;letter-spacing:0.16em;
+    white-space:normal;
+  }
+  .node .mob-brief{
+    display:block;font-family:'Inter',sans-serif;text-transform:none;
+    font-size:0.8rem;letter-spacing:0;color:var(--silver);
+    margin-top:.4rem;
+  }
+  #orbit{align-items:flex-start;overflow-y:auto}
+  .cards{grid-template-columns:1fr}
+  .notes{grid-template-columns:1fr}
+  .numeral{opacity:.5}
+}
+@media (min-width:761px){.node .mob-brief{display:none}}
+
+/* Hide native cursor only where hover is supported */
+@media (hover:hover) and (pointer:fine){
+  *{cursor:none}
+  .cursor-dot,.cursor-ring{display:block}
+}
+@media (hover:none),(pointer:coarse){
+  .cursor-dot,.cursor-ring{display:none}
+}
+
+:focus-visible{outline:2px solid var(--champagne);outline-offset:4px}
+</style>
+</head>
+<body>
+
+<!-- Film grain -->
+<svg class="grain" xmlns="http://www.w3.org/2000/svg">
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter>
+  <rect width="100%" height="100%" filter="url(#grain)"/>
+</svg>
+
+<!-- Custom cursor -->
+<div class="cursor-ring"></div>
+<div class="cursor-dot"></div>
+
+<!-- Masthead -->
+<header class="masthead">
+  <div class="brand">Vibecoding <em>for</em> Aisulu</div>
+  <div class="vol">Vol. I — MMXXVI</div>
+</header>
+
+<!-- ============ ORBIT ============ -->
+<section class="view active" id="orbit">
+  <div class="orbit-stage">
+    <div class="ring-deco"></div>
+    <div class="ring-deco inner"></div>
+
+    <div class="orbit-center">
+      <span class="eyebrow">An Editorial in Code</span>
+      <h1>VibeCoding <em>for Aisulu</em></h1>
+      <p class="tagline" id="tagline"><strong>Six Points, One Instinct</strong> — Hover a mark to preview. Click to enter the chapter.</p>
+    </div>
+
+    <!-- nodes injected/positioned by JS -->
+    <div class="node" data-target="manifesto"
+         data-label="Manifesto"
+         data-brief="Why vibecoding begins with instinct, not syntax.">
+      <button class="dot" data-index="1" aria-label="Manifesto"></button>
+      <span class="name">Manifesto<span class="mob-brief">Why vibecoding begins with instinct, not syntax.</span></span>
+    </div>
+    <div class="node" data-target="chapter1"
+         data-label="Chapter I — The Prompt"
+         data-brief="Context, precision, iteration, reference — how to write a prompt.">
+      <button class="dot" data-index="2" aria-label="Chapter I — The Prompt"></button>
+      <span class="name">Chapter I<span class="mob-brief">The Prompt — context, precision, iteration.</span></span>
+    </div>
+    <div class="node" data-target="chapter2"
+         data-label="Chapter II — The Instruments"
+         data-brief="Three instruments: Claude, Cursor, Netlify.">
+      <button class="dot" data-index="3" aria-label="Chapter II — The Instruments"></button>
+      <span class="name">Chapter II<span class="mob-brief">The Instruments — Claude, Cursor, Netlify.</span></span>
+    </div>
+    <div class="node" data-target="chapter3"
+         data-label="Chapter III — The First Project"
+         data-brief="How to choose and release your very first project.">
+      <button class="dot" data-index="4" aria-label="Chapter III — The First Project"></button>
+      <span class="name">Chapter III<span class="mob-brief">The First Project — choose and release.</span></span>
+    </div>
+    <div class="node" data-target="notes"
+         data-label="Studio Notes"
+         data-brief="Six short, practical tips from the studio floor.">
+      <button class="dot" data-index="5" aria-label="Studio Notes"></button>
+      <span class="name">Studio Notes<span class="mob-brief">Six short, practical tips.</span></span>
+    </div>
+    <div class="node" data-target="enroll"
+         data-label="Enroll"
+         data-brief="The closing word — and the way back to the orbit.">
+      <button class="dot" data-index="6" aria-label="Enroll"></button>
+      <span class="name">Enroll<span class="mob-brief">The closing word.</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MANIFESTO ============ -->
+<section class="view" id="manifesto">
+  <div class="wrap">
+    <button class="back" data-back><span class="arrow">←</span> Back to Constellation</button>
+    <span class="eyebrow sec-eyebrow">Manifesto</span>
+    <p class="pull-quote">You do not need to know how to code. You need to know how to ask.</p>
+    <p class="body-copy">Vibecoding is not the act of writing syntax. It is the act of directing intelligence through language — describing what you want with enough clarity that the machine can meet you there. The keyboard becomes a place for intent, not for memorising brackets and semicolons.</p>
+    <p class="body-copy">This is a course for absolute beginners. Three chapters, no prerequisites, no prior line of code required. You will learn to speak to your tools, to choose them like fabric, and to release a first project into the world — not because it is finished, but because it is alive.</p>
+  </div>
+</section>
+
+<!-- ============ CHAPTER I ============ -->
+<section class="view" id="chapter1">
+  <div class="wrap">
+    <button class="back" data-back><span class="arrow">←</span> Back to Constellation</button>
+    <div class="numeral">I</div>
+    <span class="eyebrow sec-eyebrow">Chapter I — The Prompt</span>
+    <h2 class="sec-title">The Prompt <em>is your voice.</em></h2>
+    <p class="lede">A prompt is a brief, not a search query. You are not typing keywords into a box — you are commissioning a piece of work.</p>
+    <ol class="steps">
+      <li><div><h4>Give context first, instructions second</h4><p>Set the scene before you make the request. The model reasons better when it knows what world it is working inside.</p></div></li>
+      <li><div><h4>Precision reads as confidence</h4><p>Vague asks return vague work. Name the format, the tone, the constraints. Specificity is a kindness to your tools.</p></div></li>
+      <li><div><h4>Iterate like an editor, not a critic</h4><p>Refine in passes. Redirect rather than reject. Each round moves the draft closer, the way an editor shapes a manuscript.</p></div></li>
+      <li><div><h4>Show, don't just tell</h4><p>Paste an example, a reference, a shape you admire. A single sample communicates more than a paragraph of description.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ CHAPTER II ============ -->
+<section class="view" id="chapter2">
+  <div class="wrap">
+    <button class="back" data-back><span class="arrow">←</span> Back to Constellation</button>
+    <div class="numeral">II</div>
+    <span class="eyebrow sec-eyebrow">Chapter II — The Instruments</span>
+    <h2 class="sec-title">The Instruments — <em>chosen like fabric.</em></h2>
+    <p class="lede">Three instruments carry a project from thought to release. Each is chosen for the moment it serves.</p>
+    <div class="cards">
+      <div class="card">
+        <div class="plate"></div>
+        <div class="k-name">Claude</div>
+        <div class="k-role">The Conversation</div>
+        <p class="k-desc">Where the thinking happens and the first version is written. You describe, it drafts; together you shape the idea into something real.</p>
+      </div>
+      <div class="card">
+        <div class="plate"></div>
+        <div class="k-name">Cursor</div>
+        <div class="k-role">The Workshop</div>
+        <p class="k-desc">The editor for precise control of the code. When the conversation needs hands, this is the bench where you tailor every seam.</p>
+      </div>
+      <div class="card">
+        <div class="plate"></div>
+        <div class="k-name">Netlify</div>
+        <div class="k-role">The Runway</div>
+        <p class="k-desc">Deployment — the project's walk into the world. One step and the work leaves the studio to be seen from anywhere.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHAPTER III ============ -->
+<section class="view" id="chapter3">
+  <div class="wrap">
+    <button class="back" data-back><span class="arrow">←</span> Back to Constellation</button>
+    <div class="numeral">III</div>
+    <span class="eyebrow sec-eyebrow">Chapter III — The First Project</span>
+    <h2 class="sec-title">The First Project — <em>released, not finished.</em></h2>
+    <p class="lede">Your first project is a rehearsal for every one after it. Keep it small, describe it fully, and let it go.</p>
+    <ol class="steps">
+      <li><div><h4>Choose something small enough to finish this week</h4><p>Scope is the difference between a project and a dream. Pick something you can hold in one hand.</p></div></li>
+      <li><div><h4>Describe the whole thing before you build any of it</h4><p>Write the brief in full first. A clear description is half the build already done.</p></div></li>
+      <li><div><h4>Build in public view, even if the audience is only you</h4><p>Work where you can see the whole shape. Visibility keeps you honest about what is finished and what is not.</p></div></li>
+      <li><div><h4>Release before it feels ready</h4><p>Ready is a feeling that rarely arrives. Ship at the edge of discomfort — that is where the real project begins.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ STUDIO NOTES ============ -->
+<section class="view" id="notes">
+  <div class="wrap">
+    <button class="back" data-back><span class="arrow">←</span> Back to Constellation</button>
+    <span class="eyebrow sec-eyebrow">Studio Notes</span>
+    <h2 class="sec-title">Six notes <em>from the floor.</em></h2>
+    <div class="notes">
+      <div class="note"><span class="n-num">01</span><p>Describe what the code should become — not what it should avoid. Aim at the target, not away from the miss.</p></div>
+      <div class="note"><span class="n-num">02</span><p>A vague prompt is a draft, not a failure. Rewrite it before you judge the result it produced.</p></div>
+      <div class="note"><span class="n-num">03</span><p>Save a working version before you try a risky one. A known-good copy makes courage cheap.</p></div>
+      <div class="note"><span class="n-num">04</span><p>Write your prompt like an instruction to a trusted assistant, not like a search query fired into a box.</p></div>
+      <div class="note"><span class="n-num">05</span><p>If the result is wrong, the task was phrased wrong — it is not that your hands are in the wrong place.</p></div>
+      <div class="note"><span class="n-num">06</span><p>Keep an archive of prompts that worked. It is worth more than any library of memorised syntax.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ENROLL ============ -->
+<section class="view" id="enroll">
+  <div class="wrap">
+    <button class="back" data-back><span class="arrow">←</span> Back to Constellation</button>
+    <span class="eyebrow sec-eyebrow">Enroll</span>
+    <h2 class="sec-title">Enrollment is <em>by instinct,</em> not application.</h2>
+    <button class="enroll-cta" data-back>Return to the Orbit</button>
+    <div class="foot">VibeCoding for Aisulu · Vol. I — MMXXVI</div>
+  </div>
+</section>
+
+<script>
+(function(){
+  "use strict";
+  const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* ---------- Orbit node positioning ---------- */
+  const nodes = Array.from(document.querySelectorAll('#orbit .node'));
+  function layoutOrbit(){
+    if(window.matchMedia('(max-width:760px)').matches) return; // vertical list on mobile
+    const stage = document.querySelector('.orbit-stage');
+    const radius = stage.offsetWidth * 0.42;
+    nodes.forEach((node,i)=>{
+      const angle = (360/nodes.length)*i - 90; // start at top
+      node.style.transform =
+        `rotate(${angle}deg) translateX(${radius}px) rotate(${-angle}deg)`;
+    });
+  }
+  layoutOrbit();
+  window.addEventListener('resize', layoutOrbit);
+
+  /* ---------- Tagline preview on hover ---------- */
+  const tagline = document.getElementById('tagline');
+  const DEFAULT_TAG = tagline.innerHTML;
+  nodes.forEach(node=>{
+    const label = node.dataset.label, brief = node.dataset.brief;
+    const enter = ()=>{ tagline.style.opacity=0;
+      setTimeout(()=>{ tagline.innerHTML = `<strong>${label}</strong><br>${brief}`;
+        tagline.style.opacity=1; }, reduce?0:180); };
+    const leave = ()=>{ tagline.style.opacity=0;
+      setTimeout(()=>{ tagline.innerHTML = DEFAULT_TAG; tagline.style.opacity=1; }, reduce?0:180); };
+    node.addEventListener('mouseenter', enter);
+    node.addEventListener('mouseleave', leave);
+    node.querySelector('.dot').addEventListener('focus', enter);
+    node.querySelector('.dot').addEventListener('blur', leave);
+  });
+
+  /* ---------- View switching ---------- */
+  const views = document.querySelectorAll('.view');
+  function show(id){
+    views.forEach(v=>v.classList.toggle('active', v.id===id));
+    const active = document.getElementById(id);
+    if(active) active.scrollTop = 0;
+  }
+  nodes.forEach(node=>{
+    node.addEventListener('click', ()=> show(node.dataset.target));
+    node.querySelector('.dot').addEventListener('keydown', e=>{
+      if(e.key==='Enter'||e.key===' '){ e.preventDefault(); show(node.dataset.target); }
+    });
+  });
+  document.querySelectorAll('[data-back]').forEach(btn=>{
+    btn.addEventListener('click', ()=> show('orbit'));
+  });
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape') show('orbit');
+  });
+
+  /* ---------- Custom cursor ---------- */
+  if(window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+    const dot = document.querySelector('.cursor-dot');
+    const ring = document.querySelector('.cursor-ring');
+    let rx=0,ry=0,dx=0,dy=0;
+    window.addEventListener('mousemove', e=>{
+      dx=e.clientX; dy=e.clientY;
+      dot.style.transform=`translate(${dx}px,${dy}px) translate(-50%,-50%)`;
+    });
+    (function loop(){
+      rx += (dx-rx)*0.18; ry += (dy-ry)*0.18;
+      ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+      requestAnimationFrame(loop);
+    })();
+    document.querySelectorAll('button, .node, [data-back]').forEach(el=>{
+      el.addEventListener('mouseenter', ()=>ring.classList.add('hovering'));
+      el.addEventListener('mouseleave', ()=>ring.classList.remove('hovering'));
+    });
+  }
+
+  /* ---------- Plate parallax inside sections ---------- */
+  if(!reduce){
+    document.querySelectorAll('.view').forEach(view=>{
+      view.addEventListener('scroll', ()=>{
+        const y = view.scrollTop;
+        view.querySelectorAll('.plate').forEach(p=>{
+          p.style.backgroundPositionY = (y*0.15)+'px';
+        });
+        const num = view.querySelector('.numeral');
+        if(num) num.style.transform = `translateY(${y*0.1}px)`;
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>
