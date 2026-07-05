@@ -117,19 +117,22 @@ em,i{font-style:italic;color:var(--burgundy)}
   width:min(96vmin,1200px);height:min(96vmin,1200px);
   display:flex;align-items:center;justify-content:center;
 }
-.ring-deco{
-  position:absolute;inset:6%;border:1px solid var(--hairline);
-  border-radius:50%;
-  animation:spin 100s linear infinite;
+.heart-deco{
+  position:absolute;inset:0;width:100%;height:100%;
+  overflow:visible;
+  transform-origin:50% 50%;
+  animation:beat 2.6s var(--ease) infinite;
 }
-.ring-deco::before{
-  content:"";position:absolute;top:-4px;left:50%;
-  width:7px;height:7px;margin-left:-3.5px;border-radius:50%;
-  background:var(--burgundy);
+#heartPath,#heartPathInner{stroke:var(--hairline)}
+#heartPathInner{transform:scale(0.82);transform-origin:50% 50%;transform-box:fill-box}
+@keyframes beat{
+  0%,100%{transform:scale(1)}
+  8%{transform:scale(1.045)}
+  16%{transform:scale(0.99)}
+  24%{transform:scale(1.03)}
+  34%{transform:scale(1)}
 }
-.ring-deco.inner{inset:16%;animation-duration:140s;animation-direction:reverse;opacity:.6}
-@keyframes spin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.ring-deco{animation:none}}
+@media (prefers-reduced-motion:reduce){.heart-deco{animation:none}}
 
 .orbit-center{
   position:absolute;text-align:center;max-width:60%;z-index:5;
@@ -318,7 +321,7 @@ em,i{font-style:italic;color:var(--burgundy)}
 
 /* ---------- Mobile ---------- */
 @media (max-width:760px){
-  .ring-deco,.node .dot::after{display:none}
+  .heart-deco{display:none}
   .orbit-stage{width:auto;height:auto;display:block;padding:6rem 1.4rem 3rem}
   .orbit-center{position:static;max-width:100%;text-align:left;margin-bottom:2.5rem}
   .orbit-center h1{font-size:2.4rem}
@@ -378,8 +381,10 @@ em,i{font-style:italic;color:var(--burgundy)}
 <!-- ============ ORBIT ============ -->
 <section class="view active" id="orbit">
   <div class="orbit-stage">
-    <div class="ring-deco"></div>
-    <div class="ring-deco inner"></div>
+    <svg class="heart-deco" viewBox="-20 -20 40 40" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <path id="heartPath" fill="none" stroke="var(--hairline)" stroke-width="0.28"></path>
+      <path id="heartPathInner" fill="none" stroke="var(--hairline)" stroke-width="0.18" opacity="0.5"></path>
+    </svg>
 
     <div class="orbit-center">
       <span class="eyebrow">An Editorial in Code</span>
@@ -536,16 +541,56 @@ em,i{font-style:italic;color:var(--burgundy)}
   "use strict";
   const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 
-  /* ---------- Orbit node positioning ---------- */
+  /* ---------- Heart curve node positioning ---------- */
   const nodes = Array.from(document.querySelectorAll('#orbit .node'));
+
+  // Parametric heart (math coords, y points up)
+  function heartPoint(t){
+    return {
+      x: 16*Math.pow(Math.sin(t),3),
+      y: 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t)
+    };
+  }
+
+  // Sample the curve once for arc-length placement + SVG outline
+  const N = 720, samp = [], cum = [0];
+  for(let i=0;i<=N;i++){ samp.push(heartPoint(2*Math.PI*i/N)); }
+  for(let i=1;i<samp.length;i++){
+    cum.push(cum[i-1] + Math.hypot(samp[i].x-samp[i-1].x, samp[i].y-samp[i-1].y));
+  }
+  const totalLen = cum[cum.length-1];
+  function pointAtLength(target){
+    for(let i=1;i<cum.length;i++){
+      if(cum[i]>=target){
+        const f=(target-cum[i-1])/(cum[i]-cum[i-1]);
+        return { x:samp[i-1].x+(samp[i].x-samp[i-1].x)*f,
+                 y:samp[i-1].y+(samp[i].y-samp[i-1].y)*f };
+      }
+    }
+    return samp[samp.length-1];
+  }
+
+  // Draw the heart outline (SVG coords: y flipped, viewBox -20..20)
+  (function drawHeart(){
+    let d='M';
+    for(let i=0;i<samp.length;i++){
+      d += (i? ' L ':' ') + samp[i].x.toFixed(2) + ' ' + (-samp[i].y).toFixed(2);
+    }
+    d += ' Z';
+    const outer=document.getElementById('heartPath'),
+          inner=document.getElementById('heartPathInner');
+    if(outer) outer.setAttribute('d', d);
+    if(inner) inner.setAttribute('d', d);
+  })();
+
   function layoutOrbit(){
     if(window.matchMedia('(max-width:760px)').matches) return; // vertical list on mobile
     const stage = document.querySelector('.orbit-stage');
-    const radius = stage.offsetWidth * 0.42;
+    const size = Math.min(stage.offsetWidth, stage.offsetHeight);
+    const k = size/40; // viewBox is 40 units wide/tall
     nodes.forEach((node,i)=>{
-      const angle = (360/nodes.length)*i - 90; // start at top
-      node.style.transform =
-        `rotate(${angle}deg) translateX(${radius}px) rotate(${-angle}deg)`;
+      const p = pointAtLength(totalLen*(i+0.5)/nodes.length);
+      node.style.transform = `translate(${(p.x*k).toFixed(1)}px, ${(-p.y*k).toFixed(1)}px)`;
     });
   }
   layoutOrbit();
