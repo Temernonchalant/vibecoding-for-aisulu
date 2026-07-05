@@ -117,6 +117,28 @@ em,i{font-style:italic;color:var(--burgundy)}
   width:min(96vmin,1200px);height:min(96vmin,1200px);
   display:flex;align-items:center;justify-content:center;
 }
+.heart-glow{
+  position:absolute;left:50%;top:50%;
+  width:66%;height:66%;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(150,24,47,0.40) 0%,
+    rgba(122,16,36,0.20) 34%,
+    rgba(27,24,21,0) 70%);
+  filter:blur(26px);
+  pointer-events:none;
+  animation:glowbeat 2.6s var(--ease) infinite;
+}
+@keyframes glowbeat{
+  0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6}
+  8%{transform:translate(-50%,-50%) scale(1.08);opacity:.85}
+  16%{transform:translate(-50%,-50%) scale(1.0);opacity:.66}
+  24%{transform:translate(-50%,-50%) scale(1.05);opacity:.78}
+  34%{transform:translate(-50%,-50%) scale(1);opacity:.6}
+}
+@media (prefers-reduced-motion:reduce){.heart-glow{animation:none;opacity:.6}}
+
 .heart-deco{
   position:absolute;inset:0;width:100%;height:100%;
   overflow:visible;
@@ -321,7 +343,7 @@ em,i{font-style:italic;color:var(--burgundy)}
 
 /* ---------- Mobile ---------- */
 @media (max-width:760px){
-  .heart-deco{display:none}
+  .heart-deco,.heart-glow{display:none}
   .orbit-stage{width:auto;height:auto;display:block;padding:6rem 1.4rem 3rem}
   .orbit-center{position:static;max-width:100%;text-align:left;margin-bottom:2.5rem}
   .orbit-center h1{font-size:2.4rem}
@@ -381,6 +403,7 @@ em,i{font-style:italic;color:var(--burgundy)}
 <!-- ============ ORBIT ============ -->
 <section class="view active" id="orbit">
   <div class="orbit-stage">
+    <div class="heart-glow" aria-hidden="true"></div>
     <svg class="heart-deco" viewBox="-20 -20 40 40" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <path id="heartPath" fill="none" stroke="var(--hairline)" stroke-width="0.28"></path>
       <path id="heartPathInner" fill="none" stroke="var(--hairline)" stroke-width="0.18" opacity="0.5"></path>
