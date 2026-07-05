@@ -117,27 +117,54 @@ em,i{font-style:italic;color:var(--burgundy)}
   width:min(96vmin,1200px);height:min(96vmin,1200px);
   display:flex;align-items:center;justify-content:center;
 }
-.heart-glow{
+/* Animated red gradient aura behind the heart.
+   Container pulses in sync with the heartbeat; inner blobs drift. */
+.heart-aura{
   position:absolute;left:50%;top:50%;
-  width:66%;height:66%;
+  width:82%;height:82%;
   transform:translate(-50%,-50%);
-  border-radius:50%;
-  background:radial-gradient(circle,
-    rgba(150,24,47,0.40) 0%,
-    rgba(122,16,36,0.20) 34%,
-    rgba(27,24,21,0) 70%);
-  filter:blur(26px);
   pointer-events:none;
+  filter:blur(46px);
   animation:glowbeat 2.6s var(--ease) infinite;
 }
-@keyframes glowbeat{
-  0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6}
-  8%{transform:translate(-50%,-50%) scale(1.08);opacity:.85}
-  16%{transform:translate(-50%,-50%) scale(1.0);opacity:.66}
-  24%{transform:translate(-50%,-50%) scale(1.05);opacity:.78}
-  34%{transform:translate(-50%,-50%) scale(1);opacity:.6}
+.heart-aura .blob{
+  position:absolute;width:62%;height:62%;border-radius:50%;
+  mix-blend-mode:screen;will-change:transform;
 }
-@media (prefers-reduced-motion:reduce){.heart-glow{animation:none;opacity:.6}}
+.heart-aura .b1{
+  top:19%;left:19%;
+  background:radial-gradient(circle at center, rgba(150,24,47,0.55) 0, rgba(150,24,47,0) 62%);
+  animation:auraVertical 13s ease-in-out infinite;
+}
+.heart-aura .b2{
+  top:10%;left:30%;transform-origin:calc(50% - 140px) center;
+  background:radial-gradient(circle at center, rgba(122,16,36,0.50) 0, rgba(122,16,36,0) 62%);
+  animation:auraCircle 20s linear infinite;
+}
+.heart-aura .b3{
+  top:30%;left:9%;transform-origin:calc(50% + 140px) center;
+  background:radial-gradient(circle at center, rgba(180,36,58,0.42) 0, rgba(180,36,58,0) 62%);
+  animation:auraCircle 30s linear reverse infinite;
+}
+.heart-aura .b4{
+  top:24%;left:24%;
+  background:radial-gradient(circle at center, rgba(90,10,25,0.55) 0, rgba(90,10,25,0) 62%);
+  animation:auraHorizontal 22s ease-in-out infinite;
+}
+@keyframes glowbeat{
+  0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.62}
+  8%{transform:translate(-50%,-50%) scale(1.07);opacity:.9}
+  16%{transform:translate(-50%,-50%) scale(1.0);opacity:.68}
+  24%{transform:translate(-50%,-50%) scale(1.05);opacity:.8}
+  34%{transform:translate(-50%,-50%) scale(1);opacity:.62}
+}
+@keyframes auraVertical{0%,100%{transform:translateY(-14%)}50%{transform:translateY(14%)}}
+@keyframes auraHorizontal{0%,100%{transform:translateX(-14%) translateY(-7%)}50%{transform:translateX(14%) translateY(7%)}}
+@keyframes auraCircle{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){
+  .heart-aura{animation:none;opacity:.62}
+  .heart-aura .blob{animation:none}
+}
 
 .heart-deco{
   position:absolute;inset:0;width:100%;height:100%;
@@ -343,7 +370,7 @@ em,i{font-style:italic;color:var(--burgundy)}
 
 /* ---------- Mobile ---------- */
 @media (max-width:760px){
-  .heart-deco,.heart-glow{display:none}
+  .heart-deco,.heart-aura{display:none}
   .orbit-stage{width:auto;height:auto;display:block;padding:6rem 1.4rem 3rem}
   .orbit-center{position:static;max-width:100%;text-align:left;margin-bottom:2.5rem}
   .orbit-center h1{font-size:2.4rem}
@@ -403,7 +430,12 @@ em,i{font-style:italic;color:var(--burgundy)}
 <!-- ============ ORBIT ============ -->
 <section class="view active" id="orbit">
   <div class="orbit-stage">
-    <div class="heart-glow" aria-hidden="true"></div>
+    <div class="heart-aura" aria-hidden="true">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+      <div class="blob b4"></div>
+    </div>
     <svg class="heart-deco" viewBox="-20 -20 40 40" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <path id="heartPath" fill="none" stroke="var(--hairline)" stroke-width="0.28"></path>
       <path id="heartPathInner" fill="none" stroke="var(--hairline)" stroke-width="0.18" opacity="0.5"></path>
