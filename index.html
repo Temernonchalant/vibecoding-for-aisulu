@@ -121,10 +121,11 @@ em,i{font-style:italic;color:var(--burgundy)}
    Container pulses in sync with the heartbeat; inner blobs drift. */
 .heart-aura{
   position:absolute;left:50%;top:50%;
-  width:82%;height:82%;
+  width:125%;height:125%;
   transform:translate(-50%,-50%);
   pointer-events:none;
-  filter:blur(46px);
+  filter:blur(52px);
+  will-change:opacity;
   animation:glowbeat 2.6s var(--ease) infinite;
 }
 .heart-aura .blob{
@@ -152,11 +153,11 @@ em,i{font-style:italic;color:var(--burgundy)}
   animation:auraHorizontal 22s ease-in-out infinite;
 }
 @keyframes glowbeat{
-  0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.62}
-  8%{transform:translate(-50%,-50%) scale(1.07);opacity:.9}
-  16%{transform:translate(-50%,-50%) scale(1.0);opacity:.68}
-  24%{transform:translate(-50%,-50%) scale(1.05);opacity:.8}
-  34%{transform:translate(-50%,-50%) scale(1);opacity:.62}
+  0%,100%{opacity:.6}
+  8%{opacity:.92}
+  16%{opacity:.68}
+  24%{opacity:.82}
+  34%{opacity:.6}
 }
 @keyframes auraVertical{0%,100%{transform:translateY(-14%)}50%{transform:translateY(14%)}}
 @keyframes auraHorizontal{0%,100%{transform:translateX(-14%) translateY(-7%)}50%{transform:translateX(14%) translateY(7%)}}
@@ -164,6 +165,19 @@ em,i{font-style:italic;color:var(--burgundy)}
 @media (prefers-reduced-motion:reduce){
   .heart-aura{animation:none;opacity:.62}
   .heart-aura .blob{animation:none}
+}
+
+/* Interactive blob that eases toward the cursor */
+.heart-pointer{
+  position:absolute;left:50%;top:50%;
+  width:70%;height:70%;margin:-35% 0 0 -35%;
+  border-radius:50%;
+  background:radial-gradient(circle at center, rgba(150,24,47,0.50) 0, rgba(150,24,47,0) 60%);
+  mix-blend-mode:screen;
+  filter:blur(50px);
+  pointer-events:none;
+  opacity:.75;
+  will-change:transform;
 }
 
 .heart-deco{
@@ -370,7 +384,7 @@ em,i{font-style:italic;color:var(--burgundy)}
 
 /* ---------- Mobile ---------- */
 @media (max-width:760px){
-  .heart-deco,.heart-aura{display:none}
+  .heart-deco,.heart-aura,.heart-pointer{display:none}
   .orbit-stage{width:auto;height:auto;display:block;padding:6rem 1.4rem 3rem}
   .orbit-center{position:static;max-width:100%;text-align:left;margin-bottom:2.5rem}
   .orbit-center h1{font-size:2.4rem}
@@ -436,6 +450,7 @@ em,i{font-style:italic;color:var(--burgundy)}
       <div class="blob b3"></div>
       <div class="blob b4"></div>
     </div>
+    <div class="heart-pointer" aria-hidden="true"></div>
     <svg class="heart-deco" viewBox="-20 -20 40 40" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <path id="heartPath" fill="none" stroke="var(--hairline)" stroke-width="0.28"></path>
       <path id="heartPathInner" fill="none" stroke="var(--hairline)" stroke-width="0.18" opacity="0.5"></path>
@@ -650,6 +665,30 @@ em,i{font-style:italic;color:var(--burgundy)}
   }
   layoutOrbit();
   window.addEventListener('resize', layoutOrbit);
+
+  /* ---------- Cursor-following aura blob ---------- */
+  (function auraPointer(){
+    const stage = document.querySelector('.orbit-stage');
+    const pointer = document.querySelector('.heart-pointer');
+    if(!stage || !pointer || reduce) return;
+    if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+
+    let px=0, py=0, tx=0, ty=0, active=false;
+    window.addEventListener('mousemove', e=>{
+      const r = stage.getBoundingClientRect();
+      tx = e.clientX - (r.left + r.width/2);
+      ty = e.clientY - (r.top + r.height/2);
+      active = true;
+    });
+    (function loop(){
+      if(active){
+        px += (tx-px)*0.1;
+        py += (ty-py)*0.1;
+        pointer.style.transform = `translate(${px.toFixed(1)}px, ${py.toFixed(1)}px)`;
+      }
+      requestAnimationFrame(loop);
+    })();
+  })();
 
   /* ---------- Tagline preview on hover ---------- */
   const tagline = document.getElementById('tagline');
